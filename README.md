@@ -4,7 +4,7 @@ Use Application Analytics to autocollect events and track application specific e
 
 ## Download
 
-You can download .aar from GitHub's [releases page](https://github.com/bumptech/glide/releases).
+You can download .aar from GitHub's [releases page](https://github.com/Conviva/conviva-android-appanalytics/releases).
 
 Add the following line to app's **build.gradle** file along with the dependencies:
 
@@ -30,9 +30,9 @@ dependencies {
     ...
 }
 
-    // in the app, build.gradle at the end of plugins add the
-    ...
-    apply plugin: 'com.conviva.sdk.android-plugin'
+// in the app, build.gradle at the end of plugins add the
+...
+apply plugin: 'com.conviva.sdk.android-plugin'
 
 
 
@@ -42,7 +42,7 @@ plugins {
 }
 ```
 
-Check the compatible plugin version from [here](https://github.com/Conviva/conviva-android-plugin).
+Check the compatible plugin version from [Conviva Android Plugin](https://github.com/Conviva/conviva-android-plugin).
 
 ## Proguard rules
 
@@ -66,8 +66,7 @@ Target sdk version : Android 14 (API level 34)
 
 Minimum sdk version : Android 5.0 (API level 21)
 
-## Initialize the tracker by enabling autocollection
-
+## Initialization 
 ```plaintext
 TrackerController tracker = ConvivaAppAnalytics.createTracker(context,
     customerKey,
@@ -91,7 +90,7 @@ TrackerController tracker = ConvivaAppAnalytics.getTracker();
 tracker.getSubject().setUserId(userId);
 ```
 
-## Extend tracking to track your application specific events and state changes
+## Track Custom Event
 
 Use **trackCustomEvent()** API to track all kinds of events. This API provides 2 fields to describe the tracked events:
 
@@ -115,8 +114,6 @@ tracker.trackCustomEvent(eventName, eventDataJSON);
 
 **track application with data in JSON String format**
 
-## trackCustomEvent() with data in JSON String format
-
 Use **trackCustomEvent()** API to track all kinds of events. This API provides 2 fields to describe the tracked events:
 
 **eventName** - Name of the custom event
@@ -137,7 +134,7 @@ String eventName = "your-event-name";
 tracker.trackCustomEvent(eventName, JSONValue.toJSONString(eventData));
 ```
 
-## Extend tracking to set your application specific custom tags
+## Set Custom Tags
 
 Use **setCustomTags()** API to set custom tags
 
@@ -183,7 +180,7 @@ public class ExampleActivity extends Activity {
     ...
 ```
 
-**Auto-collected Events**
+## Auto-collected Events
 
 ##### Conviva provides a rich set of application performance metrics with the help of auto collected app events. Below are the events which are auto collected once above initialisation is done.
 
@@ -204,15 +201,18 @@ public class ExampleActivity extends Activity {
 
 ### Limitations:
 
-*   Starting from version [v0.9.7](https://github.com/Conviva/conviva-android-appanalytics/releases/tag/v0.9.7), the auto-collection of **screen\_view** and **application\_install** events is temporarily affected due to controlled ingestion by Conviva. This impact occurs only during the first fresh launch after an app install or clear-data. It is valid only until the Conviva Remote Config becomes available and will no longer persist in subsequent launches.
-*   **Request and Response Body Collection**:
+*   [screen\_view] Starting from version [v0.9.7](https://github.com/Conviva/conviva-android-appanalytics/releases/tag/v0.9.7), the auto-collection of **screen\_view** and **application\_install** events is temporarily affected due to controlled ingestion by Conviva. This impact occurs only during the first fresh launch after an app install or clear-data. It is valid only until the Conviva Remote Config becomes available and will no longer persist in subsequent launches.
+*   [network\_request] **Request and Response Body Collection**:
     *   Collected only when:
         *   Size is \< 10KB and content-length is available.
         *   Content-type is `"json"` or `"text/plain"`.
         *   Data is a `JSONObject`, nested `JSONObject`, or `JSONArray`.
-*   **Request and Response Header Collection**:
+*   [network\_request] **Request and Response Header Collection**:
     *   Collected only when:
         *   Data is a `JSONObject` (nested `JSONObject` and `JSONArray` are not yet supported).
         *   The server is provisioned with `"Access-Control-Expose-Headers:"`.
 
+
 To learn about the default metrics for analyzing the native and web applications performance, such as App Crashes, Avg Screen Load Time, and Page Loads, refer to the [App Experience Metrics](https://pulse.conviva.com/learning-center/content/eco/eco_metrics.html) page in the Learning Center.
+
+
