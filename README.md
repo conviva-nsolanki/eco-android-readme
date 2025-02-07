@@ -1,50 +1,73 @@
+
 ## conviva-android-appanalytics
 
 Use Application Analytics to autocollect events and track application specific events and state changes.
 
-## Download
 
+**Table of Contents**
+- [Quick Start](#quick-start)
+- [Auto-collected Events](#auto-collected-events)
+- [More Features](#more-features)
+- [FAQ](#faq)
+
+
+## Quick Start
+
+<details>
+<summary><b>Support Android Version</b></summary>
+Target sdk version : Android 14 (API level 34)
+
+Minimum sdk version : Android 5.0 (API level 21)
+</details>
+
+### Download
 You can download .aar from GitHub's [releases page](https://github.com/Conviva/conviva-android-appanalytics/releases).
 
 Add the following line to app's **build.gradle** file along with the dependencies:
 
 ```plaintext
-dependencies {
-    ...
-    implementation 'com.conviva.sdk:conviva-android-tracker:<version>'
+// build.gradle
+implementation 'com.conviva.sdk:conviva-android-tracker:<version>'
 
-    // Conviva video sensor dependency(recommended from 4.0.30 and above excluding 4.0.31)
-    implementation 'com.conviva.sdk:conviva-core-sdk:<version>'
-    ...
-}
+//build.gradle.kts
+implementation("com.conviva.sdk:conviva-android-tracker:<version>")
 ```
 
-Add the plugin
+Add the plugin. Check the compatible plugin version from [Conviva Android Plugin](https://github.com/Conviva/conviva-android-plugin).
 
 ```plaintext
 // in the root or project-level build.gradle
 dependencies {
     ...
-    // Unified Conviva Plugin supported from 0.3.5 onwards, use
     classpath 'com.conviva.sdk:android-plugin:0.3.x'
-    ...
 }
 
-// in the app, build.gradle at the end of plugins add the
-...
-apply plugin: 'com.conviva.sdk.android-plugin'
-
-
-
-// in the app, build.gradle.kts at the end of plugins add the
+// in the app, build.gradle at the end of plugins add
 plugins {
+    ...
     id 'com.conviva.sdk.android-plugin'
+}
+
+
+// in the root or project-level build.gradle.kts
+// Conviva Android Plugin is not avaiable in Gradle Plugin Portal yet.
+// Please make sure fetching from Maven Central is available.   
+dependencies {
+    ...
+    classpath("com.conviva.sdk:android-plugin:0.3.x")
+    
+}
+
+// in the app, build.gradle.kts at the end of plugins add
+plugins {
+    ...
+    id("com.conviva.sdk.android-plugin")
 }
 ```
 
-Check the compatible plugin version from [Conviva Android Plugin](https://github.com/Conviva/conviva-android-plugin).
 
-## Proguard rules
+
+**Proguard rules**
 
 Please add the following proguard rules to keep conviva sdk classes from obfuscation.
 
@@ -52,21 +75,18 @@ Please add the following proguard rules to keep conviva sdk classes from obfusca
 -keep class com.conviva.** { *; }
 ```
 
-## Multidex Config
+<details>
+<summary><b>Multidex Config</b></summary>
 
 If multidex is enabled and a multidex-config.pro is being used by the application, please add the following rule to the config.pro file.
 
 ```plaintext
 -keep class com.conviva.** { *; }
 ```
+</details>
 
-## Support Android Version
 
-Target sdk version : Android 14 (API level 34)
-
-Minimum sdk version : Android 5.0 (API level 21)
-
-## Initialization 
+### Initialization
 ```plaintext
 TrackerController tracker = ConvivaAppAnalytics.createTracker(context,
     customerKey,
@@ -84,13 +104,68 @@ TrackerController tracker = ConvivaAppAnalytics.getTracker();
 
 #### Note : It is recommended to initialize the tracker at the start of the application before the first activity class.
 
-## Set the user id (viewer id)
+### Set the user id (viewer id)
 
 ```plaintext
 tracker.getSubject().setUserId(userId);
 ```
 
-## Track Custom Event
+## Auto-collected Events
+
+##### Conviva provides a rich set of application performance metrics with the help of auto collected app events. Below are the events which are auto collected once above initialisation is done.
+
+| Event | Occurrence |
+| --- | --- |
+| network\_request | after receiving the network request response. [Refer limitations](#limitations) |
+| screen\_view | when the screen is interacted on either first launch or relaunch. [Refer limitations](#limitations) |
+| application\_error | when an error occurrs in the application |
+| button\_click | on the button click callback (works both Clickable Views and Clickable Modifiers in compose) |
+| application\_background | when the application is taken to the background |
+| application\_foreground | when the application is taken to the foreground |
+| application\_install | when the application is launched for the first time after it's installed. (It's not the exact installed time.) [Refer limitations](#limitations) |
+| deep\_link\_received | on opening an application using the UTM URL |
+| anr\_start | Timer starts for the response from the main thread. If it takes more than 4 seconds, _anr\_start_ event is triggered. |
+| anr\_end | If the SDK gets response after triggering _anr\_start_, then _anr\_end_ is dispatched. |
+| conviva\_fragment\_view | Whenever a fragment transaction commits |
+| conviva\_compose\_view | Whenever a destination change occurs in the NavController of the ComposeNavigation |
+
+### Limitations
+
+<details>
+  <summary><b>screen_view, application_install</b></summary>
+
+  Auto-collection of **screen_view** and **application_install** events is temporarily affected due to controlled ingestion by Conviva.  
+  This impact occurs only during the first fresh launch after an app install or clear-data. It is valid only until the Conviva Remote Config becomes available and will no longer persist in subsequent launches.
+
+</details>
+
+<details>
+  <summary><b>network_request</b></summary>
+  This feature supports for OkHttp, Retrofit, HTTPSUrlConnection, HTTPUrlConnection(tracking URL.getContent() and URL.getStream() are not supported)
+
+  **Request and Response Body Collection:**
+  
+  Collected only when:
+  - Size is < 10KB and content-length is available.
+  - Content-type is `"json"` or `"text/plain"`.
+  - Data is a `JSONObject`, nested `JSONObject`, or `JSONArray`.
+
+ **Request and Response Header Collection**:  
+ 
+ Collected only when:
+ - Data is a `JSONObject` (nested `JSONObject` and `JSONArray` are not yet supported).
+ - The server is provisioned with `"Access-Control-Expose-Headers:"`.
+
+</details>
+
+   
+
+
+To learn about the default metrics for analyzing the native and web applications performance, such as App Crashes, Avg Screen Load Time, and Page Loads, refer to the [App Experience Metrics](https://pulse.conviva.com/learning-center/content/eco/eco_metrics.html) page in the Learning Center.
+
+
+## More Features
+### Track Custom Event
 
 Use **trackCustomEvent()** API to track all kinds of events. This API provides 2 fields to describe the tracked events:
 
@@ -134,7 +209,7 @@ String eventName = "your-event-name";
 tracker.trackCustomEvent(eventName, JSONValue.toJSONString(eventData));
 ```
 
-## Set Custom Tags
+### Set Custom Tags
 
 Use **setCustomTags()** API to set custom tags
 
@@ -163,11 +238,11 @@ tracker.clearCustomTags(clearTagKeysSet);
 tracker.clearAllCustomTags();
 ```
 
-### Enable Traceparent Header generation and collection
+### Traceparent Header generation and collection
 
 Please contact conviva representative to enable this feature.
 
-## API to override the default Activity Name in the Screen View Event
+### API to override the default Activity Name in the Screen View Event
 
 This feature supports overriding the default Activity Name in the Screen View Event. Add the public variable _convivaScreenName_ in the corresponding activity which you want to set the screen name supported from 0.9.0 version onwards
 
@@ -180,39 +255,10 @@ public class ExampleActivity extends Activity {
     ...
 ```
 
-## Auto-collected Events
+## FAQ
 
-##### Conviva provides a rich set of application performance metrics with the help of auto collected app events. Below are the events which are auto collected once above initialisation is done.
-
-| Event | Occurrence |
-| --- | --- |
-| network\_request | after receiving the network request response [Refer limitations](#Limitations) |
-| screen\_view | when the screen is interacted on either first launch or relaunch. [Refer limitations](#Limitations) |
-| application\_error | when an error occurrs in the application |
-| button\_click | on the button click callback (works both Clickable Views and Clickable Modifiers in compose) |
-| application\_background | when the application is taken to the background |
-| application\_foreground | when the application is taken to the foreground |
-| application\_install | when the application is launched for the first time after it's installed. (It's not the exact installed time.)[Refer limitations](#Limitations) |
-| deep\_link\_received | on opening an application using the UTM URL |
-| anr\_start | Timer starts for the response from the main thread. If it takes more than 4 seconds, _anr\_start_ event is triggered. |
-| anr\_end | If the SDK gets response after triggering _anr\_start_, then _anr\_end_ is dispatched. |
-| conviva\_fragment\_view | Whenever a fragment transaction commits |
-| conviva\_compose\_view | Whenever a destination change occurs in the NavController of the ComposeNavigation |
-
-### Limitations:
-
-*   [screen\_view] Starting from version [v0.9.7](https://github.com/Conviva/conviva-android-appanalytics/releases/tag/v0.9.7), the auto-collection of **screen\_view** and **application\_install** events is temporarily affected due to controlled ingestion by Conviva. This impact occurs only during the first fresh launch after an app install or clear-data. It is valid only until the Conviva Remote Config becomes available and will no longer persist in subsequent launches.
-*   [network\_request] **Request and Response Body Collection**:
-    *   Collected only when:
-        *   Size is \< 10KB and content-length is available.
-        *   Content-type is `"json"` or `"text/plain"`.
-        *   Data is a `JSONObject`, nested `JSONObject`, or `JSONArray`.
-*   [network\_request] **Request and Response Header Collection**:
-    *   Collected only when:
-        *   Data is a `JSONObject` (nested `JSONObject` and `JSONArray` are not yet supported).
-        *   The server is provisioned with `"Access-Control-Expose-Headers:"`.
+[ECO  Integration FAQ](https://pulse.conviva.com/learning-center/content/sensor_developer_center/tools/eco_integration/eco_integration_faq.htm)
 
 
-To learn about the default metrics for analyzing the native and web applications performance, such as App Crashes, Avg Screen Load Time, and Page Loads, refer to the [App Experience Metrics](https://pulse.conviva.com/learning-center/content/eco/eco_metrics.html) page in the Learning Center.
 
 
