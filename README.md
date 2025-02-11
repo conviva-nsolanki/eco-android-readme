@@ -29,6 +29,7 @@ Add the following line to app's **build.gradle** file along with the dependencie
 // build.gradle
 implementation 'com.conviva.sdk:conviva-android-tracker:<version>'
 
+/*** Kotlin DSL **/
 //build.gradle.kts
 implementation("com.conviva.sdk:conviva-android-tracker:<version>")
 ```
@@ -48,10 +49,10 @@ plugins {
     id 'com.conviva.sdk.android-plugin'
 }
 
-
+/*** Kotlin DSL **/
 // in the root or project-level build.gradle.kts
 // Conviva Android Plugin is not avaiable in Gradle Plugin Portal yet.
-// Please make sure fetching from Maven Central is available.   
+// Please make sure downloading plugin from Maven Central is available.   
 dependencies {
     ...
     classpath("com.conviva.sdk:android-plugin:0.3.x")
@@ -65,6 +66,10 @@ plugins {
 }
 ```
 
+<details>
+<summary><b>Diagram</b></summary>
+![Plugin diagram](android_diagram.jpg)
+</details> 
 
 
 **Proguard rules**
@@ -116,18 +121,18 @@ tracker.getSubject().setUserId(userId);
 
 | Event | Occurrence |
 | --- | --- |
-| network\_request | after receiving the network request response. [Refer limitations](#limitations) |
-| screen\_view | when the screen is interacted on either first launch or relaunch. [Refer limitations](#limitations) |
-| application\_error | when an error occurrs in the application |
-| button\_click | on the button click callback (works both Clickable Views and Clickable Modifiers in compose) |
-| application\_background | when the application is taken to the background |
-| application\_foreground | when the application is taken to the foreground |
-| application\_install | when the application is launched for the first time after it's installed. (It's not the exact installed time.) [Refer limitations](#limitations) |
-| deep\_link\_received | on opening an application using the UTM URL |
+| network\_request | After receiving the network request response. [Refer limitations](#limitations). _Collected by plugin._ |
+| screen\_view | When the screen is interacted on either first launch or relaunch. [Refer limitations](#limitations). _Collected by plugin._ |
+| application\_error | When an error occurrs in the application |
+| button\_click | on the button click callback (works both Clickable Views and Clickable Modifiers in compose). _Collected by plugin._ |
+| application\_background | When the application is taken to the background |
+| application\_foreground | When the application is taken to the foreground |
+| application\_install | When the application is launched for the first time after it's installed. (It's not the exact installed time.) [Refer limitations](#limitations). |
+| deep\_link\_received | on opening an application using the UTM URL. _Collected by plugin._ |
 | anr\_start | Timer starts for the response from the main thread. If it takes more than 4 seconds, _anr\_start_ event is triggered. |
 | anr\_end | If the SDK gets response after triggering _anr\_start_, then _anr\_end_ is dispatched. |
-| conviva\_fragment\_view | Whenever a fragment transaction commits |
-| conviva\_compose\_view | Whenever a destination change occurs in the NavController of the ComposeNavigation |
+| conviva\_fragment\_view | Whenever a fragment transaction commits. _Collected by plugin._ |
+| conviva\_compose\_view | Whenever a destination change occurs in the NavController of the ComposeNavigation. _Collected by plugin._ |
 
 ### Limitations
 
