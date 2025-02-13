@@ -1,47 +1,51 @@
 
-## conviva-android-appanalytics
+# Conviva Android ECO SDK 
 
 Use Application Analytics to autocollect events and track application specific events and state changes.
 
 
 **Table of Contents**
 - [Quick Start](#quick-start)
-- [Auto-collected Events](#auto-collected-events)
 - [More Features](#more-features)
+- [Auto-collected Events](#auto-collected-events)
 - [FAQ](#faq)
 
 
 ## Quick Start
 
 <details>
-<summary><b>Support Android Version</b></summary>
+<summary><b>Supported Android Version</b></summary>
 Target sdk version : Android 14 (API level 34)
 
 Minimum sdk version : Android 5.0 (API level 21)
 </details>
 
-### Download
-You can download .aar from GitHub's [releases page](https://github.com/Conviva/conviva-android-appanalytics/releases).
+### 1. Download
 
-Add the following line to app's **build.gradle** file along with the dependencies:
+- Add the following line to app's **build.gradle** file along with the dependencies:
 
-```plaintext
+```groovy
 // Groovy DSL build.gradle
 implementation 'com.conviva.sdk:conviva-android-tracker:<version>'
 ```
-```plaintext
+```kotlin
 // Kotlin DSL build.gradle.kts
 implementation("com.conviva.sdk:conviva-android-tracker:<version>")
 ```
 
-Add the plugin. Check the compatible plugin version from [Conviva Android Plugin](https://github.com/Conviva/conviva-android-plugin).
+For offline use, download `.aar` from GitHub's [releases page](https://github.com/Conviva/conviva-android-appanalytics/releases).
 
-```plaintext
+- Add the plugin. Check the compatible plugin version from [Conviva Android ECO Plugin](https://github.com/Conviva/conviva-android-plugin).
+
+```groovy
 /** Groovy DSL **/
 // in the root or project-level build.gradle
-dependencies {
-    ...
-    classpath 'com.conviva.sdk:android-plugin:0.3.x'
+buildscript {
+    ....
+    dependencies {
+        ...
+        classpath 'com.conviva.sdk:android-plugin:0.3.x'
+    }
 }
 
 // in the app, build.gradle at the end of plugins add
@@ -50,15 +54,17 @@ plugins {
     id 'com.conviva.sdk.android-plugin'
 }
 ```
-```plaintext
+```kotlin
 /*** Kotlin DSL **/
 // in the root or project-level build.gradle.kts
-// Conviva Android Plugin is not avaiable in Gradle Plugin Portal yet.
-// Please make sure downloading plugin from Maven Central is available.   
-dependencies {
-    ...
-    classpath("com.conviva.sdk:android-plugin:0.3.x")
-    
+// Conviva Android ECO Plugin is not avaiable in Gradle Plugin Portal yet.
+// Please make sure downloading plugin from Maven Central is available.
+buildscript {
+    ....
+    dependencies {
+        ...
+        classpath("com.conviva.sdk:android-plugin:0.3.x")
+    }
 }
 
 // in the app, build.gradle.kts at the end of plugins add
@@ -95,33 +101,121 @@ If multidex is enabled and a multidex-config.pro is being used by the applicatio
 </details>
 
 
-### Initialization
-```plaintext
-TrackerController tracker = ConvivaAppAnalytics.createTracker(context,
-    customerKey,
-    appName
-);
-
-// The tracker object can be fetched using the following API in the other classes
-// then the place where createTracker is invoked using following API:
-TrackerController tracker = ConvivaAppAnalytics.getTracker();
-```
-
-**customerKey** - a string to identify specific customer account. Different keys shall be used for development / debug versus production environment. Find your keys on the account info page in Pulse.
-
-**appName** - a string value used to distinguish your applications. Simple values that are unique across all of your integrated platforms work best here.
+### 2. Initialization
 
 #### Note : It is recommended to initialize the tracker at the start of the application before the first activity class.
 
-### Set the user id (viewer id)
+```java
+import com.conviva.apptracker.ConvivaAppAnalytics;
 
-```plaintext
+public class MyApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        ...
+        TrackerController tracker = ConvivaAppAnalytics.createTracker(context,
+        customerKey,
+        appName
+    );
+}
+```
+**customerKey** - a string to identify specific customer account. Different keys shall be used for development / debug versus production environment. Find your keys on the account info page in [Pulse](https://pulse.conviva.com/).
+
+**appName** - a string value used to distinguish your applications. Simple values that are unique across all of your integrated platforms work best here.
+
+```java
+// The tracker object can be retrieved using the following API in other classes after initialization. 
+TrackerController tracker = ConvivaAppAnalytics.getTracker();
+```
+
+### 3. Set the user id (viewer id)
+A unique identifier used to distinguish individual viewers or devices. For example, an Android UUID. If [Video Sensor](https://github.com/Conviva/conviva-android-coresdk) is integrated, use the viewer id in Video.
+
+```java
 tracker.getSubject().setUserId(userId);
+```
+After completing steps 1, 2, and 3, go to the [dashboard](https://pulse.conviva.com/app/appmanager/ecoIntegration/validation) to verify the reporting of the [auto-collected events](#auto-collected-events). (_Conviva login required_)
+
+
+## More Features
+### Track Custom Event
+
+Use **trackCustomEvent()** API to track all kinds of events. This API provides 2 fields to describe the tracked events:
+
+**eventName** - Name of the custom event
+
+**eventData** - Any type of data in JSONObject format
+
+```java
+// Set up the event properties JSONObject
+JSONObject eventDataJSON = new JSONObject();
+eventDataJSON.put("identifier1", intValue);
+eventDataJSON.put("identifier2", boolValue);
+eventDataJSON.put("identifier3", "stringValue");
+
+String eventName = "your-event-name";
+
+tracker.trackCustomEvent(eventName, eventDataJSON);
+```
+
+### Set Custom Tags
+Custom Tags are global tags applied to all events and persist throughout the application lifespan, or until they are cleared
+
+The following example shows the implementation of the application using these API:
+
+Use **setCustomTags()** API to set custom tags
+```java
+// Adds the custom tags
+HashMap<String, Object> tags = new HashMap<>(); 
+eventData.put("key1", intValue); 
+eventData.put("key2", boolValue); 
+eventData.put("key3", "stringValue");
+tracker.setCustomTags(tags);
+```
+
+Use **clearCustomTags()** API to clear few of the previously set custom tags
+```java
+// clears custom tags key1 & key2
+Set<String> clearTagKeysSet = new HashSet<>();
+clearTagKeysSet.add("key1"); 
+clearTagKeysSet.add("key2"); 
+tracker.clearCustomTags(clearTagKeysSet);
+```
+
+
+Use **clearAllCustomTags()** API to clear all the previously set custom tags  
+
+```java
+// clears all the custom tags
+tracker.clearAllCustomTags();
+```
+
+
+### Traceparent Header generation and collection
+
+Please contact conviva representative to enable this feature.
+
+
+### Override Activity Name
+
+This feature supports overriding the default Activity Name in the Screen View Event. Add the public variable _convivaScreenName_ in the corresponding activity which you want to set the screen name.
+
+The following example shows how to override default Activity name:
+
+```java
+public class ExampleActivity extends Activity {
+    ...
+    public String convivaScreenName = "HomeScreen";
+    ...
 ```
 
 ## Auto-collected Events
 
-##### Conviva provides a rich set of application performance metrics with the help of auto collected app events. Below are the events which are auto collected once above initialisation is done.
+##### Conviva provides a rich set of application performance metrics with the help of automatically collected app events. Below are the events that are automatically collected once the [Quick Start](#quick-start) is complete.
+
+<details>
+
+<summary><b>Auto-collected events table</b></summary>
 
 | Event | Occurrence |
 | --- | --- |
@@ -137,6 +231,10 @@ tracker.getSubject().setUserId(userId);
 | anr\_end | If the SDK gets response after triggering _anr\_start_, then _anr\_end_ is dispatched. |
 | conviva\_fragment\_view | Whenever a fragment transaction commits. _Collected by plugin._ |
 | conviva\_compose\_view | Whenever a destination change occurs in the NavController of the ComposeNavigation. _Collected by plugin._ |
+
+To learn about the default metrics for analyzing the native and web applications performance, such as App Crashes, Avg Screen Load Time, and Page Loads, refer to the [App Experience Metrics](https://pulse.conviva.com/learning-center/content/eco/eco_metrics.html) page in the Learning Center.
+
+</details>
 
 ### Limitations
 
@@ -165,104 +263,7 @@ tracker.getSubject().setUserId(userId);
  - Data is a `JSONObject` (nested `JSONObject` and `JSONArray` are not yet supported).
  - The server is provisioned with `"Access-Control-Expose-Headers:"`.
 
-</details>
-
-   
-
-
-To learn about the default metrics for analyzing the native and web applications performance, such as App Crashes, Avg Screen Load Time, and Page Loads, refer to the [App Experience Metrics](https://pulse.conviva.com/learning-center/content/eco/eco_metrics.html) page in the Learning Center.
-
-
-## More Features
-### Track Custom Event
-
-Use **trackCustomEvent()** API to track all kinds of events. This API provides 2 fields to describe the tracked events:
-
-**eventName** - Name of the custom event
-
-**eventData** - Any type of data in JSONObject format
-
-The following example shows the implementation of the 'onClick' event listener to any element.
-
-```plaintext
-
-JSONObject eventDataJSON = new JSONObject();
-eventDataJSON.put("identifier1", intValue);
-eventDataJSON.put("identifier2", boolValue);
-eventDataJSON.put("identifier3", "stringValue");
-
-String eventName = "your-event-name";
-
-tracker.trackCustomEvent(eventName, eventDataJSON);
-```
-
-**track application with data in JSON String format**
-
-Use **trackCustomEvent()** API to track all kinds of events. This API provides 2 fields to describe the tracked events:
-
-**eventName** - Name of the custom event
-
-**eventData** - Any type of data in JSON String format
-
-The following example shows the implementation of the 'onClick' event listener to any element.
-
-```plaintext
-// ... send events 'onClick' of button
-HashMap<String, Object> eventData = new HashMap<>(); 
-eventData.put("identifier1", intValue); 
-eventData.put("identifier2", boolValue); 
-eventData.put("identifier3", "stringValue");
-
-String eventName = "your-event-name";
-
-tracker.trackCustomEvent(eventName, JSONValue.toJSONString(eventData));
-```
-
-### Set Custom Tags
-
-Use **setCustomTags()** API to set custom tags
-
-Use **clearCustomTags()** API to clear few of the previously set custom tags
-
-Use **clearAllCustomTags()** API to clear all the previously set custom tags  
-User Clicks detection
-
-The following example shows the implementation of the application using these API's:
-
-```plaintext
-// Adds the custom tags
-HashMap<String, Object> tags = new HashMap<>(); 
-eventData.put("key1", intValue); 
-eventData.put("key2", boolValue); Refer limitations
-eventData.put("key3", "stringValue");
-tracker.setCustomTags(tags);
-
-// clears few of the custom tags
-Set<String> clearTagKeysSet = new HashSet<>();
-clearTagKeysSet.add("key1"); 
-clearTagKeysSet.add("key2"); 
-tracker.clearCustomTags(clearTagKeysSet);
-
-// clears all the custom tags
-tracker.clearAllCustomTags();
-```
-
-### Traceparent Header generation and collection
-
-Please contact conviva representative to enable this feature.
-
-### API to override the default Activity Name in the Screen View Event
-
-This feature supports overriding the default Activity Name in the Screen View Event. Add the public variable _convivaScreenName_ in the corresponding activity which you want to set the screen name supported from 0.9.0 version onwards
-
-The following example shows how to include the plugin:
-
-```plaintext
-public class ExampleActivity extends Activity {
-    ...
-    public String convivaScreenName = "HomeScreen";
-    ...
-```
+</details>   
 
 ## FAQ
 
