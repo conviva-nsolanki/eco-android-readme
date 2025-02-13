@@ -26,17 +26,18 @@ You can download .aar from GitHub's [releases page](https://github.com/Conviva/c
 Add the following line to app's **build.gradle** file along with the dependencies:
 
 ```plaintext
-// build.gradle
+// Groovy DSL build.gradle
 implementation 'com.conviva.sdk:conviva-android-tracker:<version>'
-
-/*** Kotlin DSL **/
-//build.gradle.kts
+```
+```plaintext
+// Kotlin DSL build.gradle.kts
 implementation("com.conviva.sdk:conviva-android-tracker:<version>")
 ```
 
 Add the plugin. Check the compatible plugin version from [Conviva Android Plugin](https://github.com/Conviva/conviva-android-plugin).
 
 ```plaintext
+/** Groovy DSL **/
 // in the root or project-level build.gradle
 dependencies {
     ...
@@ -48,7 +49,8 @@ plugins {
     ...
     id 'com.conviva.sdk.android-plugin'
 }
-
+```
+```plaintext
 /*** Kotlin DSL **/
 // in the root or project-level build.gradle.kts
 // Conviva Android Plugin is not avaiable in Gradle Plugin Portal yet.
@@ -68,7 +70,9 @@ plugins {
 
 <details>
 <summary><b>Diagram</b></summary>
+    
 ![Plugin diagram](android_diagram.jpg)
+
 </details> 
 
 
