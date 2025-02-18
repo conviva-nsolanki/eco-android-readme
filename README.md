@@ -80,7 +80,7 @@ plugins {
 
 </details>
 
-**Proguard rules / Multidex Config **
+**Proguard rules / Multidex Config**
 
 Please add the following Proguard rules to keep Conviva SDK classes from obfuscation. If multidex is enabled and a multidex-config.pro is being used by the application, please add the same rule to the multidex-config.pro file.
 
