@@ -80,9 +80,10 @@ plugins {
 
 </details>
 
-**Proguard rules / Multidex Config**
+**Proguard / R8 / Multidex Config**
 
-Please add the following Proguard rules to keep Conviva SDK classes from obfuscation. If multidex is enabled and a multidex-config.pro is being used by the application, please add the same rule to the multidex-config.pro file.
+Please add the following Proguard/R8 rules to keep Conviva SDK classes from obfuscation. If multidex is enabled and a `multidex-config.pro` file is being used by the application, please add the same rule to the `multidex-config.pro` file.
+
 
 ```plaintext
 -keep class com.conviva.** { *; }
@@ -106,7 +107,7 @@ public class MyApplication extends Application {
     }
 }
 ```
-**customerKey** - A string to identify a specific customer account. Different keys should be used for development/debug versus production environments. Find your keys on the My Profile page in [Pulse](https://pulse.conviva.com/app/profile/applications).
+**customerKey** - A string to identify a specific customer account. Different keys should be used for development/debug versus production environments. Find your keys on the My Profile page in [Pulse](https://pulse.conviva.com/app/profile/applications).(_Conviva login required_)
 
 **appName** - A string value used to distinguish your applications. Simple values that are unique across all of your integrated platforms work best here.
 
@@ -121,6 +122,7 @@ User ID is a unique identifier used to distinguish individual viewers or devices
 ```java
 tracker.getSubject().setUserId(userId);
 ```
+
 After completing steps 1, 2, and 3, go to the [validation dashboard](https://pulse.conviva.com/app/appmanager/ecoIntegration/validation) to verify the reporting of the [auto-collected events](#auto-collected-events). (_Conviva login required_)
 
 ## More Features
@@ -130,7 +132,7 @@ Use the **trackCustomEvent()** API to track all kinds of events. This API provid
 
 **eventName** - Name of the custom event
 
-**eventData** - Any type of data in JSONObject format
+**eventData** - Data in a `JSONObject` or a JSON-formatted `String`
 
 ```java
 // Set up the event properties JSONObject
@@ -147,9 +149,7 @@ tracker.trackCustomEvent(eventName, eventDataJSON);
 ### Set Custom Tags
 Custom Tags are global tags applied to all events and persist throughout the application lifespan, or until they are cleared.
 
-The following example shows the implementation of the application using these APIs:
-
-Use the **setCustomTags()** API to set custom tags
+Use the **setCustomTags()** API to set custom tags:
 ```java
 // Adds the custom tags
 HashMap<String, Object> tags = new HashMap<>();
@@ -181,9 +181,7 @@ Please contact a Conviva representative to enable this feature.
 
 ### Override Activity Name
 
-This feature supports overriding the default Activity Name in the Screen View Event. Add the public variable _convivaScreenName_ in the corresponding activity which you want to set the screen name.
-
-The following example shows how to override the default Activity name:
+This feature supports overriding the default Activity Name in the Screen View Event. Add the public variable `convivaScreenName` in the corresponding activity which you want to set the screen name.
 
 ```java
 public class ExampleActivity extends Activity {
@@ -244,7 +242,7 @@ To learn about the default metrics for analyzing the native and web applications
  **Request and Response Header Collection:**
 
  Collected only when:
- - Data is a `JSONObject` (nested `JSONObject` and `JSONArray` are not yet supported).
+ - Data is a `JSONObject` (Nested `JSONObject` and `JSONArray` are not yet supported).
  - The server is provisioned with `"Access-Control-Expose-Headers:"`.
 
 </details>
