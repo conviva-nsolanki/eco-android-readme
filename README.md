@@ -126,7 +126,11 @@ tracker.getSubject().setUserId(userId);
 After completing steps 1, 2, and 3, go to the [validation dashboard](https://pulse.conviva.com/app/appmanager/ecoIntegration/validation) to verify the reporting of the [auto-collected events](#auto-collected-events). (_Conviva login required_)
 
 ## More Features
-### Track Custom Event
+
+<details>
+
+<summary><b>Track Custom Event</b></summary>
+
 
 Use the **trackCustomEvent()** API to track all kinds of events. This API provides 2 fields to describe the tracked events:
 
@@ -146,7 +150,12 @@ String eventName = "your-event-name";
 tracker.trackCustomEvent(eventName, eventDataJSON);
 ```
 
-### Set Custom Tags
+</details>
+
+<details>
+
+<summary><b>Set Custom Tags</b></summary>
+
 Custom Tags are global tags applied to all events and persist throughout the application lifespan, or until they are cleared.
 
 Use the **setCustomTags()** API to set custom tags:
@@ -175,11 +184,19 @@ Use the **clearAllCustomTags()** API to clear all the previously set custom tags
 tracker.clearAllCustomTags();
 ```
 
-### Traceparent Header generation and collection
+</details>
+
+<details>
+
+<summary><b>Traceparent Header Generation and Collection</b></summary>
 
 Please contact a Conviva representative to enable this feature.
 
-### Override Activity Name
+</details>
+
+<details>
+
+<summary><b>Override Activity Name</b></summary>
 
 This feature supports overriding the default Activity Name in the Screen View Event. Add the public variable `convivaScreenName` in the corresponding activity which you want to set the screen name.
 
@@ -190,6 +207,9 @@ public class ExampleActivity extends Activity {
     // ...
 }
 ```
+
+</details>
+
 
 ## Auto-collected Events
 
