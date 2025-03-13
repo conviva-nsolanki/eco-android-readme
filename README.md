@@ -10,68 +10,85 @@ Use Conviva Android ECO SDK to auto-collect events and track application-specifi
 
 ## Quick Start
 
-<details>
-<summary><b>Supported Android Version</b></summary>
-Target SDK version: Android 14 (API level 34)
+##### Supported Android Version
 
-Minimum SDK version: Android 5.0 (API level 21)
-</details>
+- Target SDK version: Android 14 (API level 34)
+- Minimum SDK version: Android 5.0 (API level 21)
+
 
 ### 1. Download
 
-- Add the following line to the app's **build.gradle** file along with the dependencies:
+- Add the plugin to your project's root `build.gradle` file, replacing `<version>` with the latest from Conviva [Conviva Android ECO Plugin](https://github.com/Conviva/conviva-android-plugin).
 
 ```groovy
-// Groovy DSL build.gradle
-implementation 'com.conviva.sdk:conviva-android-tracker:<version>'
-```
-```kotlin
-// Kotlin DSL build.gradle.kts
-implementation("com.conviva.sdk:conviva-android-tracker:<version>")
-```
-
-Replace `<version>` with the latest SDK version available [here](https://github.com/Conviva/conviva-android-appanalytics/releases).
-
-For offline use, download the `.aar` from GitHub's [releases page](https://github.com/Conviva/conviva-android-appanalytics/releases).
-
-- Add the plugin, replacing `<version>` with the latest from Conviva [Conviva Android ECO Plugin](https://github.com/Conviva/conviva-android-plugin).
-
-```groovy
-// Groovy DSL
-// In the root or project-level build.gradle
-buildscript {
-    // ...
-    dependencies {
-        // ...
-        classpath 'com.conviva.sdk:android-plugin:<version>'
-    }
+// Groovy
+plugins {
+  // ...
+  id 'com.conviva.sdk.android-plugin' version '<version>' apply false
 }
 
-// In the app's build.gradle at the end of plugins add
+```
+
+```kotlin
+// Kotlin
+plugins {
+  // ...
+  id("com.conviva.sdk.android-plugin") version "<version>" apply false
+}
+
+```
+
+- Apply the Gradle plugin and add the dependency in `app/build.gradle` file, replacing `<version>` with the latest SDK version available [here](https://github.com/Conviva/conviva-android-appanalytics/releases).
+
+```groovy
+// Groovy
 plugins {
     // ...
     id 'com.conviva.sdk.android-plugin'
 }
-```
-```kotlin
-// Kotlin DSL
-// In the root or project-level build.gradle.kts
-// Conviva Android ECO Plugin is not available in Gradle Plugin Portal yet.
-// Please download the plugin from Maven Central.
-buildscript {
-    // ...
-    dependencies {
-        // ...
-        classpath("com.conviva.sdk:android-plugin:<version>")
-    }
+
+android {
+  // ...
 }
 
-// In the app's build.gradle.kts at the end of plugins add
+dependencies {
+    // ...
+    implementation 'com.conviva.sdk:conviva-android-tracker:<version>'
+}
+```
+
+```kotlin
+// Kotlin 
 plugins {
     // ...
     id("com.conviva.sdk.android-plugin")
 }
+
+android {
+  // ...
+}
+
+dependencies {
+    // ...
+    implementation("com.conviva.sdk:conviva-android-tracker:<version>")
+}
+
 ```
+
+<details>
+    <summary>Using Offline Library for Dependencies</summary>
+    
+Download the `.aar` from GitHub's [releases page](https://github.com/Conviva/conviva-android-appanalytics/releases) and add it manually instead of using Gradle.
+    
+```groovy
+dependencies {
+    // ...
+    implementation fileTree(dir: 'libs',include:['*.aar'])
+}
+```
+
+</details>
+
 
 <details>
 <summary><b>Diagram</b></summary>
@@ -82,7 +99,7 @@ plugins {
 
 **Proguard / R8 / Multidex Config**
 
-Add the following Proguard/R8 rule to prevent Conviva SDK obfuscation. If using multidex with `multidex-config.pro` file, add the same rule there.
+Add the following ProGuard/R8 rule to the `proguard-rules.pro` file to prevent Conviva SDK obfuscation. If using multidex with the `multidex-config.pro` file, add the same rule there as well.
 
 ```plaintext
 -keep class com.conviva.** { *; }
@@ -92,6 +109,7 @@ Add the following Proguard/R8 rule to prevent Conviva SDK obfuscation. If using 
 
 #### Note: It is recommended to Initialize the tracker at app startup before the first activity.
 
+An example of Conviva Android ECO SDK initialization: 
 ```java
 import com.conviva.apptracker.ConvivaAppAnalytics;
 
@@ -117,7 +135,7 @@ TrackerController tracker = ConvivaAppAnalytics.getTracker();
 ```
 
 ### 3. Set the User ID
-User ID is a unique string for identifying viewers or devices (e.g., Android UUID). If using [Conviva Video Sensor](https://github.com/Conviva/conviva-android-coresdk), match it with the **Viewer ID**.
+User ID is a unique string identifier to distinguish individual viewers. If using [Conviva Video Sensor](https://github.com/Conviva/conviva-android-coresdk), match it with the **Viewer ID**.
 
 ```java
 tracker.getSubject().setUserId(userId);
@@ -182,14 +200,6 @@ Clear all the previously set custom tags:
 // Clears all the custom tags
 tracker.clearAllCustomTags();
 ```
-
-</details>
-
-<details>
-
-<summary><b>Traceparent Header Generation and Collection</b></summary>
-
-Please contact a Conviva representative to enable this feature.
 
 </details>
 
@@ -262,6 +272,7 @@ To learn about the default metrics for analyzing the native and web applications
 
  Collected only when:
  - Data is a `JSONObject` (Nested `JSONObject` and `JSONArray` are not yet supported).
+ - The server is provisioned with `"Access-Control-Expose-Headers:"`.
 
 </details>
 
