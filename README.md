@@ -15,6 +15,12 @@ Use Conviva Android ECO SDK to auto-collect events and track application-specifi
 - Target SDK version: Android 14 (API level 34)
 - Minimum SDK version: Android 5.0 (API level 21)
 
+<details>
+<summary><b>Diagram</b></summary>
+
+![Plugin diagram](android_diagram.jpg)
+
+</details>
 
 ### 1. Download
 
@@ -89,13 +95,6 @@ dependencies {
 
 </details>
 
-
-<details>
-<summary><b>Diagram</b></summary>
-
-![Plugin diagram](android_diagram.jpg)
-
-</details>
 
 **Proguard / R8 / Multidex Config**
 
