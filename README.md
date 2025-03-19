@@ -10,68 +10,85 @@ Use Conviva Android ECO SDK to auto-collect events and track application-specifi
 
 ## Quick Start
 
-<details>
-<summary><b>Supported Android Version</b></summary>
-Target SDK version: Android 14 (API level 34)
+##### Supported Android Version
 
-Minimum SDK version: Android 5.0 (API level 21)
-</details>
+- Target SDK version: Android 14 (API level 34)
+- Minimum SDK version: Android 5.0 (API level 21)
+
 
 ### 1. Download
 
-- Add the following line to the app's **build.gradle** file along with the dependencies:
+- Add the plugin to your project's root `build.gradle` file, replacing `<version>` with the latest from Conviva [Conviva Android ECO Plugin](https://github.com/Conviva/conviva-android-plugin).
 
 ```groovy
-// Groovy DSL build.gradle
-implementation 'com.conviva.sdk:conviva-android-tracker:<version>'
-```
-```kotlin
-// Kotlin DSL build.gradle.kts
-implementation("com.conviva.sdk:conviva-android-tracker:<version>")
-```
-
-Replace `<version>` with the latest SDK version available [here](https://github.com/Conviva/conviva-android-appanalytics/releases).
-
-For offline use, download the `.aar` from GitHub's [releases page](https://github.com/Conviva/conviva-android-appanalytics/releases).
-
-- Add the plugin. Replace `<version>` with the latest compatible plugin version from [Conviva Android ECO Plugin](https://github.com/Conviva/conviva-android-plugin).
-
-```groovy
-// Groovy DSL
-// in the root or project-level build.gradle
-buildscript {
-    // ...
-    dependencies {
-        // ...
-        classpath 'com.conviva.sdk:android-plugin:<version>'
-    }
+// Groovy
+plugins {
+  // ...
+  id 'com.conviva.sdk.android-plugin' version '<version>' apply false
 }
 
-// in the app's build.gradle at the end of plugins add
+```
+
+```kotlin
+// Kotlin
+plugins {
+  // ...
+  id("com.conviva.sdk.android-plugin") version "<version>" apply false
+}
+
+```
+
+- Apply the Gradle plugin and add the dependency in `app/build.gradle` file, replacing `<version>` with the latest SDK version available [here](https://github.com/Conviva/conviva-android-appanalytics/releases).
+
+```groovy
+// Groovy
 plugins {
     // ...
     id 'com.conviva.sdk.android-plugin'
 }
-```
-```kotlin
-// Kotlin DSL
-// in the root or project-level build.gradle.kts
-// Conviva Android ECO Plugin is not available in Gradle Plugin Portal yet.
-// Please download the plugin from Maven Central.
-buildscript {
-    // ...
-    dependencies {
-        // ...
-        classpath("com.conviva.sdk:android-plugin:<version>")
-    }
+
+android {
+  // ...
 }
 
-// in the app's build.gradle.kts at the end of plugins add
+dependencies {
+    // ...
+    implementation 'com.conviva.sdk:conviva-android-tracker:<version>'
+}
+```
+
+```kotlin
+// Kotlin 
 plugins {
     // ...
     id("com.conviva.sdk.android-plugin")
 }
+
+android {
+  // ...
+}
+
+dependencies {
+    // ...
+    implementation("com.conviva.sdk:conviva-android-tracker:<version>")
+}
+
 ```
+
+<details>
+    <summary>Using Offline Library for Dependencies</summary>
+    
+Download the `.aar` from GitHub's [releases page](https://github.com/Conviva/conviva-android-appanalytics/releases) and add it manually instead of using Gradle.
+    
+```groovy
+dependencies {
+    // ...
+    implementation fileTree(dir: 'libs',include:['*.aar'])
+}
+```
+
+</details>
+
 
 <details>
 <summary><b>Diagram</b></summary>
@@ -82,8 +99,7 @@ plugins {
 
 **Proguard / R8 / Multidex Config**
 
-Please add the following Proguard/R8 rules to keep Conviva SDK classes from obfuscation. If multidex is enabled and a `multidex-config.pro` file is being used by the application, please add the same rule to the `multidex-config.pro` file.
-
+Add the following ProGuard/R8 rule to the `proguard-rules.pro` file to prevent Conviva SDK obfuscation. If using multidex with the `multidex-config.pro` file, add the same rule there as well.
 
 ```plaintext
 -keep class com.conviva.** { *; }
@@ -91,10 +107,9 @@ Please add the following Proguard/R8 rules to keep Conviva SDK classes from obfu
 
 ### 2. Initialization
 
-Use the `ConvivaAppAnalytics.createTracker(context, customerKey, appName)` API to initialize the Conviva Android ECO SDK.
+#### Note: It is recommended to Initialize the tracker at app startup before the first activity.
 
-#### Note: It is recommended to initialize the tracker at the start of the application before the first activity class.
-
+An example of Conviva Android ECO SDK initialization: 
 ```java
 import com.conviva.apptracker.ConvivaAppAnalytics;
 
@@ -102,14 +117,17 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        TrackerController tracker = ConvivaAppAnalytics.createTracker(this, customerKey, appName);
         // ...
+        //  Initialize the Conviva Android ECO SDK
+        TrackerController tracker = ConvivaAppAnalytics.createTracker(this, customerKey, appName);
+        
     }
 }
 ```
-**customerKey** - A string to identify a specific customer account. Different keys should be used for development/debug versus production environments. Find your keys on the My Profile page in [Pulse](https://pulse.conviva.com/app/profile/applications).(_Conviva login required_)
 
-**appName** - A string value used to distinguish your applications. Simple values that are unique across all of your integrated platforms work best here.
+**customerKey** - A string to identify a specific customer account. Use different keys for dev and prod. Find them in [Pulse](https://pulse.conviva.com/app/profile/applications) under My Profile (_Conviva login required_).
+
+**appName** - A string value that uniquely identifies your app across platforms.
 
 ```java
 // The tracker object can be retrieved using the following API in other classes after initialization.
@@ -117,16 +135,20 @@ TrackerController tracker = ConvivaAppAnalytics.getTracker();
 ```
 
 ### 3. Set the User ID
-User ID is a unique identifier used to distinguish individual viewers or devices. For example, an Android UUID. If the [Conviva Video Sensor](https://github.com/Conviva/conviva-android-coresdk) is integrated, set it to the same value as the Viewer ID reported for Video.
+User ID is a unique string identifier to distinguish individual viewers. If using [Conviva Video Sensor](https://github.com/Conviva/conviva-android-coresdk), match it with the **Viewer ID**.
 
 ```java
 tracker.getSubject().setUserId(userId);
 ```
 
-After completing steps 1, 2, and 3, go to the [validation dashboard](https://pulse.conviva.com/app/appmanager/ecoIntegration/validation) to verify the reporting of the [auto-collected events](#auto-collected-events). (_Conviva login required_)
+After steps 1–3, verify [auto-collected events](#auto-collected-events) in the [validation dashboard](https://pulse.conviva.com/app/appmanager/ecoIntegration/validation). (_Conviva login required_)
 
 ## More Features
-### Track Custom Event
+
+<details>
+
+<summary><b>Track Custom Event</b></summary>
+
 
 Use the **trackCustomEvent()** API to track all kinds of events. This API provides 2 fields to describe the tracked events:
 
@@ -146,10 +168,15 @@ String eventName = "your-event-name";
 tracker.trackCustomEvent(eventName, eventDataJSON);
 ```
 
-### Set Custom Tags
+</details>
+
+<details>
+
+<summary><b>Set Custom Tags</b></summary>
+
 Custom Tags are global tags applied to all events and persist throughout the application lifespan, or until they are cleared.
 
-Use the **setCustomTags()** API to set custom tags:
+Set custom tags:
 ```java
 // Adds the custom tags
 HashMap<String, Object> tags = new HashMap<>();
@@ -159,7 +186,7 @@ tags.put("key3", "stringValue");
 tracker.setCustomTags(tags);
 ```
 
-Use the **clearCustomTags()** API to clear a few of the previously set custom tags
+Clear a few of the previously set custom tags:
 ```java
 // Clears custom tags key1 & key2
 Set<String> clearTagKeysSet = new HashSet<>();
@@ -168,20 +195,19 @@ clearTagKeysSet.add("key2");
 tracker.clearCustomTags(clearTagKeysSet);
 ```
 
-Use the **clearAllCustomTags()** API to clear all the previously set custom tags
-
+Clear all the previously set custom tags:
 ```java
 // Clears all the custom tags
 tracker.clearAllCustomTags();
 ```
 
-### Traceparent Header generation and collection
+</details>
 
-Please contact a Conviva representative to enable this feature.
+<details>
 
-### Override Activity Name
+<summary><b>Override Activity Name</b></summary>
 
-This feature supports overriding the default Activity Name in the Screen View Event. Add the public variable `convivaScreenName` in the corresponding activity which you want to set the screen name.
+Override the default Activity Name in the Screen View Event by adding the `convivaScreenName` variable in the desired activity.
 
 ```java
 public class ExampleActivity extends Activity {
@@ -191,9 +217,12 @@ public class ExampleActivity extends Activity {
 }
 ```
 
+</details>
+
+
 ## Auto-collected Events
 
-Conviva provides a rich set of application performance metrics with the help of automatically collected app events. Below are the events that are automatically collected once the [Quick Start](#quick-start) is complete.
+Conviva automatically collects rich set of app performance metrics through app events after completing the [Quick Start](#quick-start).
 
 <details>
 
